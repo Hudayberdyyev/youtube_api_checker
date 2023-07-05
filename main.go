@@ -9,11 +9,13 @@ import (
 	"strings"
 )
 
+const MAXN = int(1e6)
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 
 	client := youtube.Client{}
-	for i := 0; i < 5; i++ {
+	for i := 0; i < MAXN; i++ {
 		videoID := "BaW_jenozKc"
 		video, err := client.GetVideo(videoID)
 		if err != nil {
