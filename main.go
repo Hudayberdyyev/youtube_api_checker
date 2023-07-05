@@ -6,27 +6,39 @@ import (
 	"io"
 	"log"
 	"os"
+	"runtime"
 	"strings"
+	"sync/atomic"
 )
 
-const MAXN = int(1e6)
+const MAXN = int(10)
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
-
+	bufferChan := make(chan struct{}, runtime.GOMAXPROCS(0))
 	client := youtube.Client{}
-	errCount := 0
+	var errCount atomic.Int32
 	for i := 0; i < MAXN; i++ {
-		videoID := "BaW_jenozKc"
-		video, err := client.GetVideo(videoID)
-		if err != nil {
-			errCount++
-			log.Printf("%d) error when retrieving video information from API: %v\n", i, err)
-		} else {
-			log.Printf("%d) successful retrieve video information from API: %s\n", i, video.ID)
-		}
+		bufferChan <- struct{}{}
+		go func(iteration int) {
+			videoID := "BaW_jenozKc"
+			video, err := client.GetVideo(videoID)
+			if err != nil {
+				errCount.Add(1)
+				log.Printf("%d) error when retrieving video information from API: %v\n", iteration, err)
+			} else {
+				log.Printf("%d) successful retrieve video information from API: %s\n", iteration, video.ID)
+			}
+
+			<-bufferChan
+		}(i)
+		runtime.Gosched()
 	}
-	log.Printf("error count = %d\n", errCount)
+
+	for len(bufferChan) > 0 {
+	}
+
+	log.Printf("error count = %d\n", errCount.Load())
 }
 
 func ExampleClient() {
