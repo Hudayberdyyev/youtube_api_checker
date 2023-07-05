@@ -15,15 +15,18 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 
 	client := youtube.Client{}
+	errCount := 0
 	for i := 0; i < MAXN; i++ {
 		videoID := "BaW_jenozKc"
 		video, err := client.GetVideo(videoID)
 		if err != nil {
-			log.Printf("error when retrieving video information from API: %v\n", err)
+			errCount++
+			log.Printf("%d) error when retrieving video information from API: %v\n", i, err)
 		} else {
-			log.Printf("successful retrieve video information from API: %s\n", video.ID)
+			log.Printf("%d) successful retrieve video information from API: %s\n", i, video.ID)
 		}
 	}
+	log.Printf("error count = %d\n", errCount)
 }
 
 func ExampleClient() {
