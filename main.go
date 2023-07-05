@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 )
 
-const MAXN = int(10)
+const MAXN = int(1e6)
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
